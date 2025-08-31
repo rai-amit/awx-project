@@ -1,0 +1,60 @@
+---
+all:
+  children:
+    network:
+      children:
+        cisco:
+          children:
+            ios:
+              hosts:
+                ios-rtr-01:
+                  ansible_host: 192.168.49.1  # Docker host IP from K8s perspective
+                  ansible_port: 2201
+                  ansible_user: root
+                  ansible_password: cisco123
+                  ansible_network_os: ios
+                  ansible_connection: network_cli
+                  ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+                  device_type: router
+                  vendor: cisco
+                  model: "CSR1000v"
+                  mgmt_ip: "192.168.100.11"
+                  
+            iosxr:
+              hosts:
+                iosxr-rtr-01:
+                  ansible_host: 192.168.49.1
+                  ansible_port: 2202
+                  ansible_user: root
+                  ansible_password: cisco123
+                  ansible_network_os: iosxr
+                  ansible_connection: network_cli
+                  ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+                  device_type: router
+                  vendor: cisco
+                  model: "ASR9k"
+                  mgmt_ip: "192.168.100.12"
+                  
+            nxos:
+              hosts:
+                nxos-sw-01:
+                  ansible_host: 192.168.49.1
+                  ansible_port: 2203
+                  ansible_user: root
+                  ansible_password: cisco123
+                  ansible_network_os: nxos
+                  ansible_connection: network_cli
+                  ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+                  device_type: switch
+                  vendor: cisco
+                  model: "Nexus9000"
+                  mgmt_ip: "192.168.100.13"
+                  
+        routers:
+          hosts:
+            - ios-rtr-01
+            - iosxr-rtr-01
+            
+        switches:
+          hosts:
+            - nxos-sw-01
