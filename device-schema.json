@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Network Device Schema",
+  "description": "JSON schema for network device data in CMDB orchestration",
+  "type": "object",
+  "properties": {
+    "orchestration_data": {
+      "type": "object",
+      "properties": {
+        "devices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/device"
+          },
+          "minItems": 1,
+          "maxItems": 50
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "source": {"type": "string"},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "orchestration_id": {"type": "string"}
+          }
+        }
+      },
+      "required": ["devices"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["orchestration_data"],
+  "definitions": {
+    "device": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-_.]*[a-zA-Z0-9]$",
+          "minLength": 2,
+          "maxLength": 63,
+          "description": "Device hostname (DNS compliant)"
+        },
+        "device_type": {
+          "type": "string",
+          "enum": ["router", "switch", "firewall", "load_balancer", "wireless_controller"],
+          "description": "Type of network device"
+        },
+        "vendor": {
+          "type": "string", 
+          "enum": ["cisco", "arista", "juniper", "fortinet", "palo_alto", "f5", "mikrotik"],
+          "description": "Device vendor"
+        },
+        "os_family": {
+          "type": "string",
+          "enum": ["ios", "iosxr", "nxos", "eos", "junos", "fortios", "panos"],
+          "description": "Operating system family"
+        },
+        "location": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50,
+          "description": "Physical location or site"
+        },
+        "mgmt_ip": {
+          "type": "string",
+          "oneOf": [
+            {"format": "ipv4"},
+            {"format": "ipv6"},
+            {"format": "hostname"}
+          ],
+          "description": "Management IP address or hostname"
+        },
+        "ssh_port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 22,
+          "description": "SSH port number"
+        },
+        "ssh_user": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "SSH username"
+        },
+        "ssh_password": {
+          "type": "string",
+          "description": "SSH password (consider using credentials instead)"
+        },
+        "model": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Device model"
+        },
+        "serial_number": {
+          "type": "string",
+          "pattern": "^[A-Z0-9]+$",
+          "maxLength": 20,
+          "description": "Device serial number"
+        },
+        "firmware_version": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "Firmware/OS version"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["core", "distribution", "access", "edge", "dmz", "management"]
+          },
+          "uniqueItems": true,
+          "description": "Device roles in network"
+        },
+        "tags": {
+          "type": "array", 
+          "items": {"type": "string"},
+          "uniqueItems": true,
+          "description": "Custom tags for device"
+        },
+        "_state": {
+          "type": "string",
+          "enum": ["present", "absent"],
+          "default": "present",
+          "description": "Device state (absent triggers deletion if allowed)"
+        }
+      },
+      "required": ["name", "device_type", "vendor", "mgmt_ip"],
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^custom_.*",
+        "description": "Custom fields must start with 'custom_'"
+      }
+    }
+  }
+}

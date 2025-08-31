@@ -147,12 +147,146 @@ safety_mode:
 import json
 import requests
 import yaml
+import os
 from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable
 from ansible.errors import AnsibleError, AnsibleParserError
+
+try:
+    import jsonschema
+    HAS_JSONSCHEMA = True
+except ImportError:
+    HAS_JSONSCHEMA = False
 
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     NAME = 'network_lab.inventory.cmdb_orchestration'
+
+    def __init__(self):
+        super(InventoryModule, self).__init__()
+        self.device_schema = None
+        self._load_schema()
+
+    def _load_schema(self):
+        """Load device JSON schema for validation"""
+        try:
+            # Try to find schema file in same directory as plugin
+            plugin_dir = os.path.dirname(os.path.abspath(__file__))
+            schema_paths = [
+                os.path.join(plugin_dir, '..', '..', '..', '..', 'device-schema.json'),
+                os.path.join(plugin_dir, 'device-schema.json'),
+                './device-schema.json'
+            ]
+            
+            for schema_path in schema_paths:
+                if os.path.exists(schema_path):
+                    with open(schema_path, 'r') as f:
+                        self.device_schema = json.load(f)
+                    break
+                    
+        except Exception as e:
+            self.display.warning(f"Could not load device schema: {e}")
+            # Define minimal inline schema as fallback
+            self.device_schema = {
+                "type": "object",
+                "properties": {
+                    "orchestration_data": {
+                        "type": "object", 
+                        "properties": {
+                            "devices": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": ["name", "device_type", "vendor", "mgmt_ip"]
+                                }
+                            }
+                        },
+                        "required": ["devices"]
+                    }
+                },
+                "required": ["orchestration_data"]
+            }
+
+    def _validate_device_data(self, data):
+        """Validate device data against JSON schema"""
+        if not HAS_JSONSCHEMA:
+            self.display.warning("jsonschema library not available, skipping validation")
+            return True, []
+
+        if not self.device_schema:
+            self.display.warning("Device schema not loaded, skipping validation")
+            return True, []
+
+        try:
+            jsonschema.validate(data, self.device_schema)
+            return True, []
+        except jsonschema.ValidationError as e:
+            error_msg = f"Schema validation failed: {e.message}"
+            if e.absolute_path:
+                error_msg += f" at path: {'.'.join(str(p) for p in e.absolute_path)}"
+            return False, [error_msg]
+        except jsonschema.SchemaError as e:
+            return False, [f"Invalid schema: {e.message}"]
+
+    def _validate_individual_devices(self, devices):
+        """Validate individual device entries with detailed error reporting"""
+        validation_errors = []
+        valid_devices = []
+
+        for i, device in enumerate(devices):
+            device_errors = []
+            
+            # Required fields validation
+            required_fields = ['name', 'device_type', 'vendor', 'mgmt_ip']
+            for field in required_fields:
+                if field not in device or not device[field]:
+                    device_errors.append(f"Missing required field: {field}")
+
+            # Device name validation (DNS compliant)
+            if 'name' in device:
+                name = device['name']
+                if not isinstance(name, str) or len(name) < 2 or len(name) > 63:
+                    device_errors.append(f"Invalid name length: {name}")
+                import re
+                if not re.match(r'^[a-zA-Z0-9][a-zA-Z0-9-_.]*[a-zA-Z0-9]$', name):
+                    device_errors.append(f"Invalid name format: {name}")
+
+            # Device type validation
+            valid_device_types = ['router', 'switch', 'firewall', 'load_balancer', 'wireless_controller']
+            if device.get('device_type') not in valid_device_types:
+                device_errors.append(f"Invalid device_type: {device.get('device_type')}. Must be one of: {valid_device_types}")
+
+            # Vendor validation
+            valid_vendors = ['cisco', 'arista', 'juniper', 'fortinet', 'palo_alto', 'f5', 'mikrotik']
+            if device.get('vendor') not in valid_vendors:
+                device_errors.append(f"Invalid vendor: {device.get('vendor')}. Must be one of: {valid_vendors}")
+
+            # Management IP validation
+            mgmt_ip = device.get('mgmt_ip')
+            if mgmt_ip:
+                import socket
+                try:
+                    socket.inet_aton(mgmt_ip)  # Basic IPv4 validation
+                except socket.error:
+                    # Try as hostname
+                    if not re.match(r'^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*$', mgmt_ip):
+                        device_errors.append(f"Invalid mgmt_ip format: {mgmt_ip}")
+
+            # SSH port validation
+            ssh_port = device.get('ssh_port', 22)
+            if not isinstance(ssh_port, int) or ssh_port < 1 or ssh_port > 65535:
+                device_errors.append(f"Invalid ssh_port: {ssh_port}. Must be 1-65535")
+
+            # Custom fields validation
+            for key, value in device.items():
+                if key.startswith('custom_') and not isinstance(value, (str, int, float, bool)):
+                    device_errors.append(f"Custom field {key} must be scalar value, got: {type(value)}")
+
+            if device_errors:
+                validation_errors.append(f"Device {i+1} ({device.get('name', 'unnamed')}): {'; '.join(device_errors)}")
+            else:
+                valid_devices.append(device)
+
+        return valid_devices, validation_errors
 
     def verify_file(self, path):
         """Return true/false if this is possibly a valid file for this plugin to consume"""
@@ -339,6 +473,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             
             self.display.v(f"Full sync from CMDB: {cmdb_endpoint}")
             cmdb_response = self._fetch_from_cmdb(cmdb_endpoint)
+            raw_data = {"orchestration_data": cmdb_response}
             devices = cmdb_response.get('devices', [])
             
         elif sync_mode == 'incremental':
@@ -347,15 +482,33 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             # Try to get data from source_vars (AWX API call)
             source_vars = getattr(self, '_source_vars', {})
             if source_vars and 'orchestration_data' in source_vars:
+                raw_data = source_vars
                 devices = source_vars['orchestration_data'].get('devices', [])
             elif direct_data and 'devices' in direct_data:
+                raw_data = {"orchestration_data": direct_data}
                 devices = direct_data['devices']
             else:
-                devices = []
-                
-            if not devices:
                 self.display.warning("No incremental data provided - skipping sync")
                 return
+
+            # Schema validation for incremental data
+            self.display.v("Validating device data schema...")
+            schema_valid, schema_errors = self._validate_device_data(raw_data)
+            
+            if not schema_valid:
+                error_msg = "Device data schema validation failed:\n" + "\n".join(schema_errors)
+                raise AnsibleError(error_msg)
+
+            # Individual device validation
+            valid_devices, device_errors = self._validate_individual_devices(devices)
+            
+            if device_errors:
+                error_msg = "Device validation failed:\n" + "\n".join(device_errors)
+                if len(valid_devices) == 0:
+                    raise AnsibleError(error_msg)
+                else:
+                    self.display.warning(f"Some devices failed validation and will be skipped:\n{error_msg}")
+                    devices = valid_devices
 
             # Apply safety validations for incremental mode
             self._validate_incremental_safety(devices, safety_mode)

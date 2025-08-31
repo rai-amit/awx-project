@@ -1,0 +1,24 @@
+{
+  "orchestration_data": {
+    "devices": [
+      {
+        "name": "",
+        "device_type": "invalid_type",
+        "vendor": "unknown_vendor",
+        "mgmt_ip": "invalid.ip.address"
+      },
+      {
+        "name": "device-with-missing-fields",
+        "device_type": "router"
+      },
+      {
+        "name": "device@with!invalid#characters",
+        "device_type": "switch",
+        "vendor": "cisco",
+        "mgmt_ip": "10.1.1.100",
+        "ssh_port": 99999,
+        "custom_field": {"nested": "object"}
+      }
+    ]
+  }
+}

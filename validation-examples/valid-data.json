@@ -1,0 +1,42 @@
+{
+  "orchestration_data": {
+    "devices": [
+      {
+        "name": "valid-router-01",
+        "device_type": "router",
+        "vendor": "cisco",
+        "os_family": "ios",
+        "location": "datacenter1",
+        "mgmt_ip": "10.1.1.100",
+        "ssh_port": 22,
+        "ssh_user": "admin",
+        "ssh_password": "cisco123",
+        "model": "ISR4431",
+        "serial_number": "FGL123456",
+        "firmware_version": "15.7.3",
+        "roles": ["core", "edge"],
+        "tags": ["production", "critical"],
+        "custom_region": "west",
+        "custom_criticality": "high"
+      },
+      {
+        "name": "valid-switch-01",
+        "device_type": "switch",
+        "vendor": "arista",
+        "os_family": "eos",
+        "location": "datacenter2", 
+        "mgmt_ip": "10.1.2.100",
+        "ssh_port": 22,
+        "ssh_user": "admin",
+        "ssh_password": "arista123",
+        "model": "DCS-7050SX-64",
+        "serial_number": "JPE654321"
+      }
+    ],
+    "metadata": {
+      "source": "cmdb_orchestration",
+      "timestamp": "2025-08-31T21:30:00Z",
+      "orchestration_id": "orch-12345"
+    }
+  }
+}

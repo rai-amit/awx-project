@@ -1,0 +1,4 @@
+# Python dependencies for CMDB orchestration inventory plugin
+jsonschema>=4.0.0
+requests>=2.25.0
+PyYAML>=6.0
