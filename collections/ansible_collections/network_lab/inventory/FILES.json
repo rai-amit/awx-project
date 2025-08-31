@@ -1,0 +1,54 @@
+{
+ "files": [
+  {
+   "name": ".",
+   "ftype": "dir",
+   "chksum_type": null,
+   "chksum_sha256": null,
+   "format": 1
+  },
+  {
+   "name": "plugins",
+   "ftype": "dir",
+   "chksum_type": null,
+   "chksum_sha256": null,
+   "format": 1
+  },
+  {
+   "name": "plugins/inventory",
+   "ftype": "dir",
+   "chksum_type": null,
+   "chksum_sha256": null,
+   "format": 1
+  },
+  {
+   "name": "plugins/inventory/network_devices.py",
+   "ftype": "file",
+   "chksum_type": "sha256",
+   "chksum_sha256": "692454064f210095852d4633599ee3aac0a6c50b2a5704dd7cf7fd5f8fd0803e",
+   "format": 1
+  },
+  {
+   "name": "meta",
+   "ftype": "dir",
+   "chksum_type": null,
+   "chksum_sha256": null,
+   "format": 1
+  },
+  {
+   "name": "meta/runtime.yml",
+   "ftype": "file",
+   "chksum_type": "sha256",
+   "chksum_sha256": "5653c6b328fc66e595dfc4eac50c1d4bda029d76ba2c58b88da0102f43c10a00",
+   "format": 1
+  },
+  {
+   "name": "README.md",
+   "ftype": "file",
+   "chksum_type": "sha256",
+   "chksum_sha256": "b73139d2e5e2d8df95accb6f92a301e8f9afede4c63a188db1c3bb179c87d97b",
+   "format": 1
+  }
+ ],
+ "format": 1
+}

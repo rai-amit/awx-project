@@ -1,0 +1,26 @@
+---
+- name: Test Network Device Inventory
+  hosts: all
+  gather_facts: false
+  vars:
+    ansible_command_timeout: 30
+  
+  tasks:
+    - name: Show device info
+      debug:
+        msg: |
+          Device: {{ inventory_hostname }}
+          OS: {{ ansible_network_os }}
+          Type: {{ device_type }}
+          Vendor: {{ vendor }}
+          Model: {{ model }}
+          Management IP: {{ mgmt_ip }}
+          SSH Port: {{ ansible_port }}
+
+    - name: Test basic connectivity  
+      raw: echo "Connection test successful"
+      register: connectivity_test
+      
+    - name: Show connectivity result
+      debug:
+        var: connectivity_test.stdout_lines

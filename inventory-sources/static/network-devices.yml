@@ -1,0 +1,63 @@
+---
+all:
+  children:
+    network:
+      children:
+        ios:
+          hosts:
+            ios-rtr-01:
+              ansible_host: localhost
+              ansible_port: 2201
+              ansible_user: root
+              ansible_password: cisco123
+              ansible_network_os: ios
+              ansible_connection: network_cli
+              device_type: router
+              vendor: cisco
+              model: "CSR1000v"
+              mgmt_ip: "192.168.100.11"
+              
+        iosxr:
+          hosts:
+            iosxr-rtr-01:
+              ansible_host: localhost
+              ansible_port: 2202
+              ansible_user: root
+              ansible_password: cisco123
+              ansible_network_os: iosxr
+              ansible_connection: network_cli
+              device_type: router
+              vendor: cisco
+              model: "ASR9k"
+              mgmt_ip: "192.168.100.12"
+              
+        nxos:
+          hosts:
+            nxos-sw-01:
+              ansible_host: localhost
+              ansible_port: 2203
+              ansible_user: root
+              ansible_password: cisco123
+              ansible_network_os: nxos
+              ansible_connection: network_cli
+              device_type: switch
+              vendor: cisco
+              model: "Nexus9000"
+              mgmt_ip: "192.168.100.13"
+              
+        eos:
+          hosts:
+            eos-sw-01:
+              ansible_host: localhost
+              ansible_port: 2204
+              ansible_user: root
+              ansible_password: arista123
+              ansible_network_os: eos
+              ansible_connection: network_cli
+              device_type: switch
+              vendor: arista
+              model: "7050SX"
+              mgmt_ip: "192.168.100.14"
+              
+  vars:
+    ansible_python_interpreter: auto_silent

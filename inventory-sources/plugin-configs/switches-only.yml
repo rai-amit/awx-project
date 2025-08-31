@@ -1,0 +1,19 @@
+# Network Lab Inventory - Switches Only
+# Use this configuration to discover only switch devices
+
+plugin: network_lab.inventory.network_devices
+
+# Filter for switches only (NX-OS and EOS)
+filters:
+  device_types:
+    - switch
+
+compose:
+  ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+  lab_environment: true
+  discovery_method: 'plugin'
+  device_category: 'switching'
+
+keyed_groups:
+  - key: os_type
+    prefix: switch

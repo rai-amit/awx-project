@@ -1,0 +1,22 @@
+# Network Lab Inventory - All Devices
+# Use this configuration to discover all available network devices
+
+plugin: network_lab.inventory.network_devices
+
+# No filters - discover all devices
+compose:
+  ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+  lab_environment: true
+  discovery_method: 'plugin'
+
+keyed_groups:
+  - key: vendor
+    prefix: vendor
+  - key: os_type
+    prefix: os
+  - key: device_type
+    prefix: type
+
+groups:
+  lab_devices: true
+  production: false

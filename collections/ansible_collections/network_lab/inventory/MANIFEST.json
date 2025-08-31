@@ -1,0 +1,30 @@
+{
+ "collection_info": {
+  "namespace": "network_lab",
+  "name": "inventory",
+  "version": "1.0.2",
+  "authors": [
+   "Network Lab Team"
+  ],
+  "readme": "README.md",
+  "tags": [],
+  "description": "Ansible collection with inventory plugin for network device lab\n",
+  "license": [
+   "Apache-2.0"
+  ],
+  "license_file": null,
+  "dependencies": {},
+  "repository": "",
+  "documentation": "",
+  "homepage": "",
+  "issues": ""
+ },
+ "file_manifest_file": {
+  "name": "FILES.json",
+  "ftype": "file",
+  "chksum_type": "sha256",
+  "chksum_sha256": "5a4c91a432a8bf26c417c7115350d0089b8638c2870eee6b7c8ea00a2dff6a2e",
+  "format": 1
+ },
+ "format": 1
+}

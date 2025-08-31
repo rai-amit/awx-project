@@ -1,0 +1,19 @@
+# Network Lab Inventory - Cisco Devices Only
+# Use this configuration to discover only Cisco network devices
+
+plugin: network_lab.inventory.network_devices
+
+# Filter for Cisco devices only
+filters:
+  vendors:
+    - cisco
+
+compose:
+  ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+  lab_environment: true
+  discovery_method: 'plugin'
+  vendor_specific: true
+
+keyed_groups:
+  - key: os_type
+    prefix: cisco

@@ -1,0 +1,15 @@
+namespace: network_lab
+name: inventory
+version: 1.0.2
+readme: README.md
+authors:
+  - "Network Lab Team"
+description: >
+  Ansible collection with inventory plugin for network device lab
+license:
+  - Apache-2.0
+repository: ""
+documentation: ""
+homepage: ""
+issues: ""
+build_ignore: []
