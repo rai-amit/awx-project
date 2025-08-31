@@ -1,0 +1,4 @@
+---
+collections:
+  - name: collections/network_lab-inventory-1.0.2.tar.gz
+    type: file
