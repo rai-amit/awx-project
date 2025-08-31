@@ -1,0 +1,46 @@
+# CMDB Full Sync Configuration
+# Scheduled inventory source for complete CMDB synchronization
+
+plugin: network_lab.inventory.cmdb_orchestration
+sync_mode: full_sync
+cmdb_endpoint: "https://your-cmdb.company.com/api/devices"
+
+# Device filtering criteria
+filters:
+  device_types:
+    - router
+    - switch
+    - firewall
+  vendors:
+    - cisco
+    - arista
+    - juniper
+  locations:
+    - datacenter1
+    - datacenter2
+    - branch_office
+  os_families:
+    - ios
+    - iosxr
+    - nxos
+    - eos
+    - junos
+
+# Group creation mappings
+group_mappings:
+  by_vendor: true
+  by_location: true
+  by_device_type: true
+  by_os_family: true
+  custom_groups:
+    critical_infrastructure:
+      device_type: "router"
+      location: "datacenter1"
+    edge_devices:
+      location: "branch_office"
+
+# Safety configuration (for full sync)
+safety_mode:
+  allow_deletions: true  # Full sync can remove devices
+  preserve_existing_groups: false
+  max_devices_per_sync: 1000

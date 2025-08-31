@@ -1,0 +1,31 @@
+# Test incremental sync with sample data
+plugin: network_lab.inventory.cmdb_orchestration
+sync_mode: incremental
+
+direct_data:
+  devices:
+    - name: "test-router-01"
+      vendor: "cisco"
+      device_type: "router"
+      location: "datacenter1"
+      os_family: "ios"
+      mgmt_ip: "10.1.1.200"
+      ssh_port: 22
+      ssh_user: "admin"
+      ssh_password: "cisco123"
+      model: "ISR4431"
+      custom_region: "west"
+
+filters:
+  device_types: ["router", "switch"]
+  vendors: ["cisco", "arista"]
+
+group_mappings:
+  by_vendor: true
+  by_location: true
+  by_device_type: true
+
+safety_mode:
+  allow_deletions: false
+  preserve_existing_groups: true
+  max_devices_per_sync: 10

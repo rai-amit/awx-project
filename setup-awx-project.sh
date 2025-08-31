@@ -6,7 +6,7 @@
 set -e
 
 # AWX Configuration
-AWX_URL="http://192.168.49.2:32440"
+AWX_URL="http://localhost:8090"
 AWX_USERNAME="admin"
 AWX_PASSWORD="g4RePOZmpYSPQJIwyzQUTKlIpW2SvyEq"
 

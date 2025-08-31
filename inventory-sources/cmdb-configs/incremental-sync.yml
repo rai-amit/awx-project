@@ -1,0 +1,67 @@
+# CMDB Incremental Sync Configuration  
+# Orchestration-triggered inventory source for new/updated devices
+
+plugin: network_lab.inventory.cmdb_orchestration
+sync_mode: incremental
+
+# Direct data will be passed via AWX source_vars during orchestration
+# Example structure for orchestration_data:
+# {
+#   "devices": [
+#     {
+#       "name": "new-router-01",
+#       "vendor": "cisco", 
+#       "device_type": "router",
+#       "location": "datacenter1",
+#       "os_family": "ios",
+#       "mgmt_ip": "10.1.1.100",
+#       "ssh_port": 22,
+#       "ssh_user": "admin",
+#       "ssh_password": "secret123",
+#       "model": "ISR4431",
+#       "serial_number": "FGL123456",
+#       "custom_region": "west",
+#       "custom_criticality": "high"
+#     }
+#   ]
+# }
+
+# Same filtering as full sync to maintain consistency
+filters:
+  device_types:
+    - router
+    - switch
+    - firewall
+  vendors:
+    - cisco
+    - arista
+    - juniper
+  locations:
+    - datacenter1
+    - datacenter2
+    - branch_office
+  os_families:
+    - ios
+    - iosxr
+    - nxos
+    - eos
+    - junos
+
+# Same group mappings as full sync
+group_mappings:
+  by_vendor: true
+  by_location: true
+  by_device_type: true
+  by_os_family: true
+  custom_groups:
+    critical_infrastructure:
+      device_type: "router"
+      location: "datacenter1"
+    edge_devices:
+      location: "branch_office"
+
+# Safety restrictions for incremental updates
+safety_mode:
+  allow_deletions: false           # Never delete devices in incremental mode
+  preserve_existing_groups: true   # Keep existing group memberships
+  max_devices_per_sync: 50         # Limit batch size for orchestration
